@@ -46,5 +46,5 @@ PCB* pcb_pop(PCB **queue) {
 }
 
 void log_state(int t, PCB *p) {
-    printf("%02d:P%d -> %s (%d)\n", t, p->id+1, states[p->state], p->remaining_time);
+    printf("%02d:P%d -> %s (%d)\n", t, p->id+1, states[(int)p->state], p->remaining_time);
 }
