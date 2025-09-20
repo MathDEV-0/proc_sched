@@ -12,10 +12,10 @@ typedef enum {
 } SchedAlgo;
 
 // funções protótipos
-PCB* schedule(SchedAlgo algo, PCB **ready, int quantum);
 PCB* fifo_sch(PCB **ready);
+PCB* sjf_sch(PCB **ready);
+PCB* rr_sch(PCB **ready, int quantum); 
+PCB* srt_sch(PCB **ready);              
 
-
-//falta sjf, srt e rr
 
 #endif
