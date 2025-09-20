@@ -130,5 +130,6 @@ int main(int argc, char *argv[]) {
 }
 //gcc -std=c11 -Wall -O2 -o simso main.c pcb.c escalonador.c
 //<mem_size> <quantum>|<num_processadores>|<processo_1>|<processo_2>|...
+//processoN = <tempo_chegada> <tempo_execucao> [<momento_bloqueio>b<tempo_bloqueio>]
 //./simso "2 2|2|3|0 5|1 3|2 4"
 //./simso "2 0|2|3|0 5|1 3|2 4"
