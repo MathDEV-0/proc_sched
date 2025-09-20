@@ -8,10 +8,24 @@
 PCB *_create, *_ready, *_running, *_finish, *_blocked;
 int _memSize, _quantum, _nprocs, _time, _pcount;
 int processors_count;  // Número de processadores
+SchedAlgo _algo;
 
 
 int main(int argc, char *argv[]) {
-    const char *input = (argc > 1) ? argv[1] : "2 0|2|3|0 5|1 3|2 4";  // Entrada padrão
+    
+    if (argc > 2) {
+    if (strcmp(argv[2], "fifo") == 0) _algo = ALG_FIFO;
+    else if (strcmp(argv[2], "sjf") == 0) _algo = ALG_SJF;
+    else if (strcmp(argv[2], "rr") == 0) _algo = ALG_RR;
+    else {
+        printf("Algoritmo inválido! Usando FIFO.\n");
+        _algo = ALG_FIFO;
+    }
+}   
+    printf("Executando o algoritmo de escalonamento: %s\n", 
+        (_algo == ALG_FIFO) ? "FIFO" : (_algo == ALG_SJF) ? "SJF" : "RR");
+
+    char *input = (argc > 1) ? argv[1] : "2 2|2|3|0 5|1 3|2 4";
 
     char *buffer = malloc(strlen(input) + 1);
     strcpy(buffer, input);
@@ -62,7 +76,7 @@ int main(int argc, char *argv[]) {
             if (params < 4) p->block_moment = -1;
             p->id = _pcount++;
             log_state(_time, p);
-            pcb_push(&_create, p);
+            pcb_push(&_create, p, _time);
 
             if (sscanf(buffp, "%[^\n]%n", line, &count) >= 1) {
                 buffp += count + 1;
@@ -77,14 +91,14 @@ int main(int argc, char *argv[]) {
             PCB *p = pcb_pop(&_create);
             if (!p) break;
             p->state = READY;
-            pcb_push(&_ready, p);
+            pcb_push(&_ready, p, _time);
             log_state(_time, p);
         }
 
         // Despachar processos para processadores livres
         for (int i = 0; i < processors_count; i++) {
             if (processors[i] == NULL && _ready != NULL) {
-                PCB *p = schedule(ALG_FIFO, &_ready, _quantum);  // Pode trocar para ALG_SJF
+                PCB *p = schedule(_algo, &_ready, _quantum, _time); 
                 if (p) {
                     p->state = RUN;
                     processors[i] = p;
@@ -101,14 +115,14 @@ int main(int argc, char *argv[]) {
 
                 if (p->block_moment >= 0 && p->remaining_time > 0 && p->block_moment == (_time + 1)) {
                     p->state = BLOCK;
-                    pcb_push(&_blocked, p);
+                    pcb_push(&_blocked, p, _time + 1);
                     log_state(_time + 1, p);
                     processors[i] = NULL;
                 } else if (p->remaining_time <= 0) {
                     p->remaining_time = 0;
                     p->state = FINISH;
                     log_state(_time + 1, p);
-                    pcb_push(&_finish, p);
+                    pcb_push(&_finish, p, _time + 1);
                     processors[i] = NULL;
                 }
             }

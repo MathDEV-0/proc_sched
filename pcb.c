@@ -23,9 +23,17 @@ PCB* pcb_new() {
     return p;
 }
 
-void pcb_push(PCB **queue, PCB *item) {
+void pcb_push(PCB **queue, PCB *item, int t) {
     if(item == NULL) return;
     item->next = NULL;
+    
+    if(item->remaining_time <= 0 && item->state != FINISH) {
+        item->remaining_time = 0;
+        item->state = FINISH;
+        log_state(t, item);  // imprime no tempo da criação
+        return;
+    }
+
     if(*queue == NULL) {
         *queue = item;
     } else {
@@ -46,5 +54,5 @@ PCB* pcb_pop(PCB **queue) {
 }
 
 void log_state(int t, PCB *p) {
-    printf("%02d:P%d -> %s (%d)\n", t, p->id+1, states[(int)p->state], p->remaining_time);
+    printf("%02d:P%d -> %s (%d)\n", t, p->id+1, states[p->state], p->remaining_time);
 }

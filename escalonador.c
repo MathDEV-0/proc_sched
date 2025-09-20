@@ -3,17 +3,18 @@
 #include "escalonador.h"
 
 // escolha do algoritmo 
-PCB* schedule(SchedAlgo algo, PCB **ready, int quantum) {
+PCB* schedule(SchedAlgo algo, PCB **ready, int quantum,int t) {
     switch(algo) {
         case ALG_FIFO: return fifo_sch(ready);
         case ALG_SJF:  return sjf_sch(ready);
+        case ALG_RR:   return rr_sch(ready, quantum,t);
         default: return NULL;
     }
 }
 
 
 PCB* fifo_sch(PCB **ready) {
-    return pcb_pop(ready);
+    return pcb_pop(ready); //retorna o primeiro processo da fila
 }
 
 PCB* sjf_sch(PCB **ready){
@@ -32,16 +33,25 @@ PCB* sjf_sch(PCB **ready){
         curr = curr->next;
     }
 
-   
     if(shortest_prev == NULL) {
         *ready = shortest->next;
     } else {
         shortest_prev->next = shortest->next;
     }
-    
+
     shortest->next = NULL; 
 
     return shortest;
 }
 
-
+PCB* rr_sch(PCB **ready, int quantum,int t) {
+    if(*ready == NULL) return NULL;  //sem processo retorna NULL
+    PCB *p = pcb_pop(ready); //pega o primeiro processo da fila
+    if(p->remaining_time > quantum) { 
+        p->remaining_time -= quantum; //calcula o tempo restante
+        pcb_push(ready, p,t); //coloca o processo no final da fila
+        return NULL; 
+    } else {
+        return p;
+    }
+}

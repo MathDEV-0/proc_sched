@@ -15,7 +15,7 @@ extern const char* states[];
 
 typedef struct PCB {
     int id;
-    char state;
+    unsigned char state;
     int remaining_time;
     int block_moment;
     int block_time;
@@ -23,7 +23,7 @@ typedef struct PCB {
 } PCB;
 
 PCB* pcb_new();
-void pcb_push(PCB **queue, PCB *item);
+void pcb_push(PCB **queue, PCB *item, int t);
 PCB* pcb_pop(PCB **queue);
 void log_state(int t, PCB *p);
 
